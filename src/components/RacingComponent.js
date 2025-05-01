@@ -55,7 +55,7 @@ const RacingComponent = () => {
             if (data.userId !== userId) {
                 setAllProgress((prev) => ({
                     ...prev,
-                    [data.userId]: data.progress,
+                    [data.userId]: { progress: data.progress, name: data.name , raceId: data.raceId},
                 }));
             }
         };
@@ -75,6 +75,7 @@ const RacingComponent = () => {
                 socket.emit("progress", {
                     raceId,
                     userId,
+                    name: user.username,
                     progress,
                 });
             }, 1000);
@@ -133,8 +134,8 @@ const RacingComponent = () => {
 
     const updateUserRaces = async (speed) => {
         const isRace = Object.entries(allProgress).length > 0 ? 1 : 0;
-        const isWon = isRace ? Object.entries(allProgress).every(([key, value]) => speed >= value) : 0
-        const isLost = isRace ? Object.entries(allProgress).some(([key, value]) => speed < value) : 0
+        const isWon = isRace ? Object.entries(allProgress).every(([key, value]) => speed >= value.progress) : 0
+        const isLost = isRace ? Object.entries(allProgress).some(([key, value]) => speed < value.progress) : 0
 
         const payload = {
             isRace: Number(isRace),
@@ -275,13 +276,13 @@ const RacingComponent = () => {
                         Object.entries(allProgress)?.length > 0 &&
                         <div className="mt-6">
                             <h3 className="font-semibold mb-2">Other Racers</h3>
-                            {Object.entries(allProgress).map(([id, prog]) => (
+                            {Object.entries(allProgress).map(([id, data]) => (
                                 <div key={id} className="mb-2">
-                                    <span className="text-sm font-medium">{id}</span>: {prog}%
+                                    <span className="text-sm font-medium">{data?.name}</span>: {data?.progress}%
                                     <div className="h-2 bg-gray-300 rounded">
                                         <div
                                             className="h-2 bg-blue-500 rounded"
-                                            style={{ width: `${prog}%` }}
+                                            style={{ width: `${data.progress}%` }}
                                         ></div>
                                     </div>
                                 </div>
